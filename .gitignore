@@ -139,3 +139,6 @@ config.yaml
 
 # Vital json file to upload
 !content.json
+
+# Requirements.txt
+!requirements.txt
