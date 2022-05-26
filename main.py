@@ -5,17 +5,66 @@ import os
 import time
 
 
-def img2base64(img_path):
+class FileTypeNotSupportedError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
+class DependencyFileError(Exception):
+    def __init__(self, msg):
+        super().__init__(msg)
+
+
+def img2base64(img_path) -> str:
+    """An image-to-base64 convertor.
+
+    Convert input image file into base64 form.
+
+    Args:
+        img_path (str): currently supports local image files only. URL form will be implemented in the next version.
+
+    Returns:
+        str: image content displayed in html url().
+    """
+    mime_dict = {
+        'apng': 'apng',
+        'avif': 'avif',
+        'bmp': 'bmp',
+        'gif': 'gif',
+        'ico': 'x-icon',
+        'cur': 'x-icon',
+        'jpeg': 'jpeg',
+        'jpg': 'jpeg',
+        'jfif': 'jpeg',
+        'pjpeg': 'jpeg',
+        'pjp': 'jpeg',
+        'png': 'png',
+        'webp': 'webp'
+    }
+
     if os.path.exists(img_path):
+        extension = img_path.split('.')[-1]
+        mime_type = None
+        if extension in mime_dict:
+            mime_type = mime_dict[extension]
+        else:
+            raise FileTypeNotSupportedError('File type \"{}\" not supported.'.format(extension))
+
         with open(img_path, 'rb') as img:
             img_base64 = base64.b64encode(img.read())
-            return 'data:image/png;base64,' + img_base64.decode('utf-8')
+            return 'data:image/{};base64,{}'.format(mime_type, img_base64.decode('utf-8'))
     else:
-        raise Exception
+        raise FileNotFoundError('Image file {} not found.'.format(img_path))
 
 
 def get_option() -> dict:
+    """GUI of the generator.
 
+    Fetch file path and destination name from user.
+
+    Returns:
+        dict: contains file_name, bg_image_text_path, logo_image_text_path.
+    """
     layout = [
         [
             sg.Text(text='文件名 File Name', size=(30, 1), font='Any 15'),
@@ -60,47 +109,34 @@ def get_option() -> dict:
 
 
 if __name__ == '__main__':
-    # json_dict = [{'settings': {'openEditInWindow': False, 'openEditInWindow.popup': False, 'windowPosition': {}, 'show-badge': True, 'disableAll': False, 'exposeIframes': False, 'newStyleAsUsercss': False, 'styleViaXhr': False, 'patchCsp': False, 'config.autosave': True, 'popup.breadcrumbs': True, 'popup.breadcrumbs.usePath': False, 'popup.enabledFirst': True, 'popup.stylesFirst': True, 'popup.autoResort': False, 'popup.borders': False, 'popup.findStylesInline': True, 'popup.findSort': 'u', 'manage.onlyEnabled': False, 'manage.onlyLocal': False, 'manage.onlyUsercss': False, 'manage.onlyEnabled.invert': False, 'manage.onlyLocal.invert': False, 'manage.onlyUsercss.invert': False, 'manage.actions.expanded': True, 'manage.backup.expanded': True, 'manage.filters.expanded': False, 'manage.newUI': True, 'manage.newUI.favicons': False, 'manage.newUI.faviconsGray': True, 'manage.newUI.targets': 3, 'manage.newUI.sort': 'title,asc', 'editor.options': {}, 'editor.toc.expanded': True, 'editor.options.expanded': True, 'editor.lint.expanded': True, 'editor.publish.expanded': True, 'editor.lineWrapping': False, 'editor.smartIndent': True, 'editor.indentWithTabs': False, 'editor.tabSize': 4, 'editor.keyMap': 'sublime', 'editor.theme': 'default', 'editor.beautify': {'selector_separator_newline': True, 'newline_before_open_brace': False, 'newline_after_open_brace': True, 'newline_between_properties': True, 'newline_before_close_brace': True, 'newline_between_rules': False, 'preserve_newlines': True, 'end_with_newline': False, 'indent_conditional': True}, 'editor.beautify.hotkey': '', 'editor.lintDelay': 300, 'editor.linter': 'csslint', 'editor.lintReportDelay': 500, 'editor.matchHighlight': 'token', 'editor.autoCloseBrackets': True, 'editor.autocompleteOnTyping': False, 'editor.contextDelete': True, 'editor.selectByTokens': True, 'editor.appliesToLineWidget': True, 'editor.livePreview': True, 'editor.colorpicker': True, 'editor.colorpicker.hexUppercase': False, 'editor.colorpicker.hotkey': '', 'editor.colorpicker.color': '', 'editor.colorpicker.maxHeight': 300, 'hotkey._execute_browser_action': '', 'hotkey.openManage': '', 'hotkey.styleDisableAll': '', 'sync.enabled': 'none', 'iconset': 0, 'badgeDisabled': '#8B0000', 'badgeNormal': '#006666', 'popupWidth': 246, 'updateInterval': 24}}, {'enabled': True, 'updateUrl': 'https://cdn.jsdelivr.net/gh/33kk/uso-archive@flomaster/data/usercss/186139.user.css', 'url': 'https://uso.kkx.one/style/186139', 'installDate': 1652628609141, 'sections': [{'code': '.L3eUgb {\n        background: url("{}") center center !important;\n        background-size: cover !important;\n    }\n    .o3j99 {\n        background: transparent !important;\n    }\n\n\n    /* change color of bottom texts "About Adertising Bussiness ..." */\n    a.pHiOh {\n        color: gainsboro !important;\n    }\n\n    /*location text "United States" */\n    .uU7dJb {\n        color: gainsboro !important/* text color */;\n        border-bottom: 1px solid #cccbcb5e\n    }\n\n\n    a.EzVRq {\n        color: #fff !important\n    }\n\n    a.gb_g {\n        color: gainsboro\n    }\n\n    div#SIvCob {\n        display: none!important;\n    }\n\n    .o3j99.ikrT4e.om7nvf {\n        opacity: 0.75!important;\n    }\n\n    .gb_pa {\n        background-color: rgba(32, 33, 36, 0) !important;\n    }\n\n\n    .b0KoTc {\n        display: none !important;\n    }\n    \n    .lnXdpd{\n        content:url("https://bakaimg.oss-cn-hangzhou.aliyuncs.com/img/logo.png") !important;\n    }\n\n    /*[[icons]]*/\n\n    \n    #logo {\n        background: url("{}") 50% 80% no-repeat !important;\n        /*TOP LEFT ARKNIGHTS LOGO*/\n        background-size: contain !important;\n        padding-bottom: 80px !important;\n        bottom: 70px !important;\n    }', 'start': 531, 'regexps': ['(.*)\\.google\\.(.*)']}], 'sourceCode': '/* ==UserStyle==\n@name           Shigure`s Google Arknights Theme\n@namespace      USO Archive\n@author         bakashigure\n@description    `google.com  Arknights Theme</br>theme by <a href="https://twitter.com/bakashigure ">@bakashigure</a> </br>illustrator <a href="https://twitter.com/lococo31955424 ">@lococo31955424</a> </br>thanks <a href="https://twitter.com/DYProMIKE">@DYProMIKE</a>`\n@version        20211117.12.26\n@license        CC0-1.0\n@preprocessor   uso\n==/UserStyle== */\n@-moz-document regexp("(.*)\\\\.google\\\\.(.*)") {\n    .L3eUgb {\n        background: url(https://bakaimg.oss-cn-hangzhou.aliyuncs.com/img/mrfz.jpg) center center !important;\n        background-size: cover !important;\n    }\n    .o3j99 {\n        background: transparent !important;\n    }\n\n\n    /* change color of bottom texts "About Adertising Bussiness ..." */\n    a.pHiOh {\n        color: gainsboro !important;\n    }\n\n    /*location text "United States" */\n    .uU7dJb {\n        color: gainsboro !important/* text color */;\n        border-bottom: 1px solid #cccbcb5e\n    }\n\n\n    a.EzVRq {\n        color: #fff !important\n    }\n\n    a.gb_g {\n        color: gainsboro\n    }\n\n    div#SIvCob {\n        display: none!important;\n    }\n\n    .o3j99.ikrT4e.om7nvf {\n        opacity: 0.75!important;\n    }\n\n    .gb_pa {\n        background-color: rgba(32, 33, 36, 0) !important;\n    }\n\n\n    .b0KoTc {\n        display: none !important;\n    }\n    \n    .lnXdpd{\n        content:url("https://bakaimg.oss-cn-hangzhou.aliyuncs.com/img/logo.png") !important;\n    }\n\n    /*[[icons]]*/\n\n    \n    #logo {\n        background: url("https://bakaimg.oss-cn-hangzhou.aliyuncs.com/img/logo.png") 50% 80% no-repeat !important;\n        /*TOP LEFT ARKNIGHTS LOGO*/\n        background-size: contain !important;\n        padding-bottom: 80px !important;\n        bottom: 70px !important;\n    }\n}', 'usercssData': {'name': 'Shigure`s Google Arknights Theme', 'namespace': 'USO Archive', 'author': 'bakashigure', 'description': 'google.com  Arknights Theme</br>theme by <a href="https://twitter.com/bakashigure ">@bakashigure</a> </br>illustrator <a href="https://twitter.com/lococo31955424 ">@lococo31955424</a> </br>thanks <a href="https://twitter.com/DYProMIKE">@DYProMIKE</a>', 'version': '20211117.12.26', 'license': 'CC0-1.0', 'preprocessor': 'uso'}, 'author': 'bakashigure', 'description': 'google.com  Arknights Theme</br>theme by <a href="https://twitter.com/bakashigure ">@bakashigure</a> </br>illustrator <a href="https://twitter.com/lococo31955424 ">@lococo31955424</a> </br>thanks <a href="https://twitter.com/DYProMIKE">@DYProMIKE</a>', 'name': 'Shigure`s Google Arknights Theme', 'installationUrl': 'https://uso.kkx.one/style/186139', 'originalDigest': 'ee3c470e3a71ed8a0db90a744aba43d6740440ec', '_id': '50c220b0-f2b2-46a2-9994-7f8086955c42', '_rev': 1652628609142, 'id': 3}]
 
     option = get_option()
-    print(option)
+    dst_path = None
+    timestamp = int(time.time() * 1000)
+    # print(option)
 
     if option:
-        content_path = './content.json'
-        dst_path = option['file_name'] + '.json'
-        content = None
-        if not os.path.exists(content_path):
-            print("content.json not found.")
-            exit(1)
-
-
-        with open(content_path, 'r') as f:
-            content = json.load(f)
-
-        if not content:
-            print('content.json damaged or empty')
-            exit(2)
-
-        bg_path = option['bg_image_text_path']
-        logo_path = option['logo_image_text_path']
-
         try:
-            bg_base64 = img2base64(bg_path)
-            logo_base64 = img2base64(logo_path)
+            content_path = './content.json'
+            dst_path = option['file_name'] + '.json' if option['file_name'] else 'SESG_style.json'
+            if not os.path.exists(content_path):
+                raise DependencyFileError('File content.json not found.')
 
-            # print(bg_base64)
-            # print(logo_base64)
-            #
-            # with open('./bg_base64.txt', 'w') as bg_f:
-            #     bg_f.write(bg_base64)
-            #
-            # with open('./logo_base64.txt', 'w') as logo_f:
-            #     logo_f.write(logo_base64)
+            with open(content_path, 'r') as f:
+                content = json.load(f)
+                f.close()
+
+            if not content:
+                raise DependencyFileError('File content.json damaged or empty')
 
         except:
             print('File not found or conversion failed')
 
-        timestamp = int(time.time() * 1000)
+        bg_path = option['bg_image_text_path']
+        logo_path = option['logo_image_text_path']
+        bg_base64 = img2base64(bg_path)
+        logo_base64 = img2base64(logo_path)
+
         main_body = content['main_body']
         regexps = content['regexps']
         code = content['code']
@@ -108,8 +144,11 @@ if __name__ == '__main__':
         code = code.replace('{logo_img}', logo_base64)
         code = code.replace('\u00A0', ' ')
 
+        file_name = 'SESG Generated Shigure\'s Google Arknights Theme ' + (option['file_name'] if option['file_name'] \
+            else str(timestamp))
         source_code_header = content['sourceCode_header']
-        source_code = source_code_header.replace('{code}', code)
+        source_code = source_code_header.replace('{file_name}', file_name)
+        source_code = source_code.replace('{code}', code)
         source_code = source_code.replace('\u00A0', ' ')
         # default_resource = content['default_resource']
 
@@ -117,8 +156,10 @@ if __name__ == '__main__':
         main_body[1]['sections'][0]['code'] = code
         main_body[1]['sections'][0]['regexps'] = regexps
         main_body[1]['sourceCode'] = source_code
+        main_body[1]['usercssData']['name'] = main_body[1]['name'] = file_name
 
         # print(main_body)
 
         with open(dst_path, 'w') as f:
             json.dump(main_body, f)
+            f.close()

@@ -137,8 +137,12 @@ config.yaml
 *.webp
 *.txt
 
-# Vital json file to upload
+# Dependency json file to upload
 !content.json
 
 # Requirements.txt
 !requirements.txt
+
+# Sample images
+!sample_background_Arknights.jpg
+!sample_logo_Arknights.png
