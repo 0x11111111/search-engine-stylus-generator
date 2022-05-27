@@ -5,7 +5,7 @@ import mimetypes
 
 from os.path import exists
 from time import time
-
+from __init__ import __version__
 
 class FileTypeNotSupportedError(Exception):
     def __init__(self, msg):
@@ -69,16 +69,19 @@ def get_option() -> dict:
     """
     layout = [
         [
-            sg.Text(text='文件名 File Name', size=(30, 1), font='Any 15'),
+            sg.Text(text='输出文件名', size=(20, 1), font='Any 15'),
+            sg.Text(text='Output File Name', size=(30, 1), font='Any 15'),
             sg.InputText(key='file_name', font='Any 15')
         ],
         [
-            sg.Text(text='背景图 Background Image', size=(30, 1), font='Any 15'),
+            sg.Text(text='背景图文件或超链接', size=(20, 1), font='Any 15'),
+            sg.Text(text='File or URL of Background Image', size=(30, 1), font='Any 15'),
             sg.InputText(key='bg_image_text_path', font='Any 15'),
             sg.FileBrowse(key='bg_image_path', button_text='浏览 Browse', font='Any 15')
         ],
         [
-            sg.Text(text='图标 Logo Image', size=(30, 1), font='Any 15'),
+            sg.Text(text='图标文件或超链接', size=(20, 1), font='Any 15'),
+            sg.Text(text='File or URL of Logo Image', size=(30, 1), font='Any 15'),
             sg.InputText(key='logo_image_text_path', font='Any 15'),
             sg.FileBrowse(key='logo_image_path', button_text='浏览 Browse', font='Any 15')
         ],
@@ -89,7 +92,7 @@ def get_option() -> dict:
         ]
     ]
 
-    window = sg.Window('Stylus Generator', layout)
+    window = sg.Window('SESG v{}'.format(__version__), layout)
 
     # Event loop
     while True:
