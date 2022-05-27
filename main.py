@@ -1,8 +1,10 @@
 import json
 import PySimpleGUI as sg
 import base64
-import os
-import time
+import mimetypes
+
+from os.path import exists
+from time import time
 
 
 class FileTypeNotSupportedError(Exception):
@@ -15,7 +17,25 @@ class DependencyFileError(Exception):
         super().__init__(msg)
 
 
-def img2base64(img_path) -> str:
+def parse_input(path: str) -> str:
+    """Detect if the given path exists on local disk, or it maybe a URL.
+
+    Returns the base64 formatted image in str if the file is a local image, or it will return the given URL unchanged.
+    Args:
+        path (str): a path pointing to the resource to be filled in output json. Both a local file path and URL
+            are accepted.
+
+    Returns:
+        str: base64 formatted image in str if the file is a local image, or it will return the given URL unchanged.
+    """
+
+    if exists(path):
+        return img2base64(path)
+    else:
+        return path
+
+
+def img2base64(img_path: str) -> str:
     """An image-to-base64 convertor.
 
     Convert input image file into base64 form.
@@ -26,33 +46,15 @@ def img2base64(img_path) -> str:
     Returns:
         str: image content displayed in html url().
     """
-    mime_dict = {
-        'apng': 'apng',
-        'avif': 'avif',
-        'bmp': 'bmp',
-        'gif': 'gif',
-        'ico': 'x-icon',
-        'cur': 'x-icon',
-        'jpeg': 'jpeg',
-        'jpg': 'jpeg',
-        'jfif': 'jpeg',
-        'pjpeg': 'jpeg',
-        'pjp': 'jpeg',
-        'png': 'png',
-        'webp': 'webp'
-    }
 
-    if os.path.exists(img_path):
-        extension = img_path.split('.')[-1]
-        mime_type = None
-        if extension in mime_dict:
-            mime_type = mime_dict[extension]
-        else:
-            raise FileTypeNotSupportedError('File type \"{}\" not supported.'.format(extension))
+    if exists(img_path):
+        mime_type, encoding = mimetypes.guess_type(img_path)
+        if not mime_type or not mime_type.startswith('image'):
+            raise FileTypeNotSupportedError('File mime \"{}\" of \"{}\" not supported.'.format(mime_type, img_path))
 
         with open(img_path, 'rb') as img:
             img_base64 = base64.b64encode(img.read())
-            return 'data:image/{};base64,{}'.format(mime_type, img_base64.decode('utf-8'))
+            return 'data:{};base64,{}'.format(mime_type, img_base64.decode('utf-8'))
     else:
         raise FileNotFoundError('Image file {} not found.'.format(img_path))
 
@@ -112,14 +114,14 @@ if __name__ == '__main__':
 
     option = get_option()
     dst_path = None
-    timestamp = int(time.time() * 1000)
+    timestamp = int(time() * 1000)
     # print(option)
 
     if option:
         try:
             content_path = './content.json'
-            dst_path = option['file_name'] + '.json' if option['file_name'] else 'SESG_style.json'
-            if not os.path.exists(content_path):
+            dst_path = option['file_name'] + '.json' if option['file_name'] else 'SESG_style_{}.json'.format(timestamp)
+            if not exists(content_path):
                 raise DependencyFileError('File content.json not found.')
 
             with open(content_path, 'r') as f:
@@ -134,8 +136,8 @@ if __name__ == '__main__':
 
         bg_path = option['bg_image_text_path']
         logo_path = option['logo_image_text_path']
-        bg_base64 = img2base64(bg_path)
-        logo_base64 = img2base64(logo_path)
+        bg_base64 = parse_input(bg_path)
+        logo_base64 = parse_input(logo_path)
 
         main_body = content['main_body']
         regexps = content['regexps']
@@ -161,5 +163,5 @@ if __name__ == '__main__':
         # print(main_body)
 
         with open(dst_path, 'w') as f:
-            json.dump(main_body, f)
+            json.dump(main_body, f, indent=4)
             f.close()
